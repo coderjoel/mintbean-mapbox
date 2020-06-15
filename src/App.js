@@ -1,7 +1,5 @@
-/* global document */
-import * as React from 'react';
-import {useState} from 'react';
-import MapGL, { Source, Layer} from 'react-map-gl';
+import React, {useState, useEffect} from 'react';
+import MapGL, { Marker, Popup} from 'react-map-gl';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -15,8 +13,10 @@ import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import ParkInfo from './park-info'
 
-const geojson = require('./geodata/Canadian_National_Parks.geojson');
+const geojson = require('./geodata/National_Parks.json');
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiamNoYWNrb3NhamkiLCJhIjoiY2tiZ21pMThkMTZ4cTJ3bXJsNHdraGJmMSJ9.r-7cvl27blbieNlinE6S0g'; // Set your mapbox token here
 const MAPBOX_STYLE = 'mapbox://styles/jchackosaji/ckbgp6kta4x8x1jlztdr4b13e';
@@ -89,9 +89,9 @@ export default function App() {
   
   const [state, setState] = useState({
     viewport: {
-      latitude: 37.8,
-      longitude: -122.4,
-      zoom: 14,
+      latitude: 43.6532,
+      longitude: -79.3832,
+      zoom: 10,
       bearing: 0,
       pitch: 0
     },
@@ -99,15 +99,12 @@ export default function App() {
     left: false,
     bottom: false,
     right: false,
+    popupInfo: null
   });
 
   const classes = useStyles();
 
   const toggleDrawer = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
-
     setState({ ...state, ['left']: open });
   };
 
@@ -136,6 +133,36 @@ export default function App() {
     </div>
   );
 
+  function _renderCityMarker(location, index){
+    return (
+      <Marker
+        key={`marker-${index}`}
+        longitude={location.Longitude}
+        latitude={location.Latitude}
+      >
+        <LocationOnIcon style={{color: '#2e8ff0'}} onClick={() => setState({ popupInfo: location })} />
+      </Marker>
+    );
+  };
+
+  function _renderPopup() {
+    const { popupInfo } = state;
+    return (
+      popupInfo && (
+        <Popup
+          tipSize={5}
+          anchor="top"
+          longitude={popupInfo.Longitude}
+          latitude={popupInfo.Latitude}
+          closeOnClick={false}
+          onClose={() => setState({ popupInfo: null })}
+        >
+          <ParkInfo info={popupInfo} />
+        </Popup>
+      )
+    );
+  }
+
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -151,7 +178,7 @@ export default function App() {
             <MenuIcon />
           </IconButton>
           <Typography className={classes.title} variant="h6" noWrap>
-            Canadian National Parks
+            National Parks
           </Typography>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
@@ -184,20 +211,9 @@ export default function App() {
       mapboxApiAccessToken={MAPBOX_TOKEN}
       mapStyle={MAPBOX_STYLE}
     >
-      <Source
-      id="geojson"
-      type="geojson"
-      data={geojson}
-      />
-      <Layer
-      id="anything"
-      type="fill"
-      source="geojson"
-      paint={{
-        "fill-color": 'red',
-        "fill-opacity": 0.4
-      }}
-      />
+      {_renderPopup()}
+      {geojson.map(_renderCityMarker)}
+
       </MapGL>
     </div>
   );
