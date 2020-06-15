@@ -91,6 +91,9 @@ const useStyles = makeStyles((theme) => ({
   fullList: {
     width: 'auto',
   },
+  mapPopup: {
+    zIndex: 1249876
+  }
 }));
 
 export default function App() {
@@ -147,9 +150,11 @@ export default function App() {
         <Popup
           tipSize={5}
           anchor="top"
+          className={classes.mapPopup}
           longitude={popupInfo.Longitude}
           latitude={popupInfo.Latitude}
           closeOnClick={false}
+          dynamicPosition={false}
           onClose={() => setState({ popupInfo: null, viewport: {
             latitude: popupInfo.Latitude,
             longitude: popupInfo.Longitude,
