@@ -150,7 +150,13 @@ export default function App() {
           longitude={popupInfo.Longitude}
           latitude={popupInfo.Latitude}
           closeOnClick={false}
-          onClose={() => setState({ popupInfo: null })}
+          onClose={() => setState({ popupInfo: null, viewport: {
+            latitude: popupInfo.Latitude,
+            longitude: popupInfo.Longitude,
+            zoom: 3.5,
+            bearing: 0,
+            pitch: 0
+          }})}
         >
           <ParkInfo info={popupInfo} />
         </Popup>
@@ -159,7 +165,14 @@ export default function App() {
   }
 
   const _onClickMarker = (location) => {
-    setState({popupInfo: location});
+    console.log('DATA', location)
+    setState({popupInfo: location, viewport: {
+      latitude: location.Latitude,
+      longitude: location.Longitude,
+      zoom: 3.5,
+      bearing: 0,
+      pitch: 0
+    }});
   };
 
   return (
@@ -207,7 +220,7 @@ export default function App() {
       {...state.viewport}
       width="100vw"
       height="93.5vh"
-      onViewportChange={viewport => setState({viewport})}
+      onViewportChange={newViewport => setState({viewport: newViewport})}
       mapboxApiAccessToken={MAPBOX_TOKEN}
       mapStyle={MAPBOX_STYLE}
     >
