@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import MapGL, { Marker, Popup} from 'react-map-gl';
+import React, {useState} from 'react';
+import MapGL, { Marker, Popup, FullscreenControl} from 'react-map-gl';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -15,11 +15,19 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import ParkInfo from './park-info'
+import Pins from './pins';
 
 const geojson = require('./geodata/National_Parks.json');
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiamNoYWNrb3NhamkiLCJhIjoiY2tiZ21pMThkMTZ4cTJ3bXJsNHdraGJmMSJ9.r-7cvl27blbieNlinE6S0g'; // Set your mapbox token here
 const MAPBOX_STYLE = 'mapbox://styles/jchackosaji/ckbgp6kta4x8x1jlztdr4b13e';
+
+const fullscreenControlStyle = {
+  position: 'absolute',
+  top: 36,
+  left: 0,
+  padding: '10px'
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -89,17 +97,14 @@ export default function App() {
   
   const [state, setState] = useState({
     viewport: {
-      latitude: 43.6532,
-      longitude: -79.3832,
-      zoom: 10,
+      latitude: 37.785164,
+      longitude: -100,
+      zoom: 3.5,
       bearing: 0,
       pitch: 0
     },
-    top: false,
     left: false,
-    bottom: false,
-    right: false,
-    popupInfo: null
+    popupInfo: null,
   });
 
   const classes = useStyles();
@@ -116,7 +121,7 @@ export default function App() {
       onKeyDown={toggleDrawer('left', false)}
     >
       <List>
-        {['Canada', 'United States'].map((text, index) => (
+        {['United States', 'Canada (Coming'].map((text, index) => (
           <ListItem button key={text}>
             <ListItemText primary={text} />
           </ListItem>
@@ -126,26 +131,16 @@ export default function App() {
       <List>
         {['About'].map((text, index) => (
           <ListItem button key={text}>
+            <a href="https://github.com/coderjoel/mintbean-mapbox">
             <ListItemText primary={text} />
+            </a>
           </ListItem>
         ))}
       </List>
     </div>
   );
 
-  function _renderCityMarker(location, index){
-    return (
-      <Marker
-        key={`marker-${index}`}
-        longitude={location.Longitude}
-        latitude={location.Latitude}
-      >
-        <LocationOnIcon style={{color: '#2e8ff0'}} onClick={() => setState({ popupInfo: location })} />
-      </Marker>
-    );
-  };
-
-  function _renderPopup() {
+  const _renderPopup = () => {
     const { popupInfo } = state;
     return (
       popupInfo && (
@@ -162,6 +157,10 @@ export default function App() {
       )
     );
   }
+
+  const _onClickMarker = (location) => {
+    setState({popupInfo: location});
+  };
 
   return (
     <div className={classes.root}>
@@ -180,19 +179,21 @@ export default function App() {
           <Typography className={classes.title} variant="h6" noWrap>
             National Parks
           </Typography>
-          <div className={classes.search}>
+          {/* <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
             <InputBase
-              placeholder="Search…"
+              placeholder="Search…(Not "
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
               inputProps={{ 'aria-label': 'search' }}
+              onChange={(evt) => setState({searchText: evt.target.value})}
+              value={state.searchText}
             />
-          </div>
+          </div> */}
         </Toolbar>
       </AppBar>
       {
@@ -204,16 +205,17 @@ export default function App() {
       }
       <MapGL
       {...state.viewport}
-      {...state.settings}
       width="100vw"
-      height="100vh"
+      height="93.5vh"
       onViewportChange={viewport => setState({viewport})}
       mapboxApiAccessToken={MAPBOX_TOKEN}
       mapStyle={MAPBOX_STYLE}
     >
       {_renderPopup()}
-      {geojson.map(_renderCityMarker)}
-
+      <Pins data={geojson} onClick={_onClickMarker} />
+      <div style={fullscreenControlStyle}>
+          <FullscreenControl />
+        </div>
       </MapGL>
     </div>
   );
