@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Project can be found deployed on CodeSandbox
+
+[Project is LIVE here](https://codesandbox.io/s/github/coderjoel/mintbean-mapbox)
+
 ## Available Scripts
 
 In the project directory, you can run:
