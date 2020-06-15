@@ -121,7 +121,7 @@ export default function App() {
       onKeyDown={toggleDrawer('left', false)}
     >
       <List>
-        {['United States', 'Canada (Coming'].map((text, index) => (
+        {['United States', 'Canada (Coming Soon)'].map((text, index) => (
           <ListItem button key={text}>
             <ListItemText primary={text} />
           </ListItem>
